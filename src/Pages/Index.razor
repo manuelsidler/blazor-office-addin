@@ -1,0 +1,26 @@
+﻿@page "/"
+@inject IJSRuntime JSRuntime;
+
+<h1>Hello, Office!</h1>
+
+<p>
+    Host: @_hostInformation.Host
+</p>
+
+<p>
+    Platform: @_hostInformation.Platform
+</p>
+
+<button type="button" class="btn btn-primary" @onclick="InitializeOffice">
+    Initialize Office
+</button>
+
+@code
+{
+    private HostInformation _hostInformation = new HostInformation();
+
+    private async Task InitializeOffice()
+    {
+        _hostInformation = await JSRuntime.InvokeAsync<HostInformation>("Office.onReady");
+    }
+}
