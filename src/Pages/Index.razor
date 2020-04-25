@@ -3,24 +3,47 @@
 
 <h1>Hello, Office!</h1>
 
-<p>
-    Host: @_hostInformation.Host
-</p>
-
-<p>
-    Platform: @_hostInformation.Platform
-</p>
+<table class="table">
+    <tbody>
+        <tr>
+            <td>Host</td>
+            <td>@_hostInformation.Host</td>
+        </tr>
+        <tr>
+            <td>Platform</td>
+            <td>@_hostInformation.Platform</td>
+        </tr>
+        <tr>
+            <td>Title</td>
+            <td>@_documentMetadata.Title</td>
+        </tr>
+        <tr>
+            <td>Subject</td>
+            <td>@_documentMetadata.Subject</td>
+        </tr>
+    </tbody>
+</table>
 
 <button type="button" class="btn btn-primary" @onclick="InitializeOffice">
     Initialize Office
 </button>
 
+<button type="button" class="btn btn-secondary" @onclick="LoadDocumentMetadata">
+    Load Metadata
+</button>
+
 @code
 {
     private HostInformation _hostInformation = new HostInformation();
+    private DocumentMetadata _documentMetadata = new DocumentMetadata();
 
     private async Task InitializeOffice()
     {
         _hostInformation = await JSRuntime.InvokeAsync<HostInformation>("Office.onReady");
+    }
+
+    private async Task LoadDocumentMetadata()
+    {
+        _documentMetadata = await JSRuntime.InvokeAsync<DocumentMetadata>("wordWrapper.getDocumentMetadata");
     }
 }
