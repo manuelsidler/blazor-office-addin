@@ -15,5 +15,13 @@
                     return error;
                 });
         });
+    },
+    saveDocumentMetadata: function(metadata) {
+        return window.Word.run(function(context) {
+            context.document.properties.title = metadata.title;
+            context.document.properties.subject = metadata.subject;
+
+            return context.sync();
+        });
     }
 }

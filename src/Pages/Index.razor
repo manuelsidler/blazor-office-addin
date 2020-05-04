@@ -13,14 +13,6 @@
             <td>Platform</td>
             <td>@_hostInformation.Platform</td>
         </tr>
-        <tr>
-            <td>Title</td>
-            <td>@_documentMetadata.Title</td>
-        </tr>
-        <tr>
-            <td>Subject</td>
-            <td>@_documentMetadata.Subject</td>
-        </tr>
     </tbody>
 </table>
 
@@ -31,6 +23,29 @@
 <button type="button" class="btn btn-secondary" @onclick="LoadDocumentMetadata">
     Load Metadata
 </button>
+
+<hr/>
+
+<EditForm Model="@_documentMetadata" OnValidSubmit="SaveDocumentMetadata">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="form-group">
+        <label>
+            Title:
+            <InputText id="title" class="form-control" @bind-Value="@_documentMetadata.Title" />
+        </label>
+    </div>
+
+    <div class="form-group">
+        <label>
+            Subject:
+            <InputText id="subject" class="form-control" @bind-Value="@_documentMetadata.Subject" />
+        </label>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Submit</button>
+</EditForm>
 
 @code
 {
@@ -45,5 +60,10 @@
     private async Task LoadDocumentMetadata()
     {
         _documentMetadata = await JSRuntime.InvokeAsync<DocumentMetadata>("wordWrapper.getDocumentMetadata");
+    }
+
+    private async Task SaveDocumentMetadata()
+    {
+        await JSRuntime.InvokeVoidAsync("wordWrapper.saveDocumentMetadata", _documentMetadata);
     }
 }
