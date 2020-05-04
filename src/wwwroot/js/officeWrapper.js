@@ -1,27 +1,25 @@
 ﻿window.wordWrapper = {
-    getDocumentMetadata: function () {
-        return window.Word.run(function (context) {
-            var properties = context.document.properties;
+    getDocumentMetadata: async function () {
+        const metadata = await window.Word.run(async context => {
+            let properties = context.document.properties;
             context.load(properties);
 
-            return context.sync()
-                .then(function () {
-                    return {
-                        title: properties.title,
-                        subject: properties.subject
-                    };
-                })
-                .catch(function (error) {
-                    return error;
-                });
+            await context.sync();
+
+            return {
+                title: properties.title,
+                subject: properties.subject
+            };
         });
+
+        return metadata;
     },
-    saveDocumentMetadata: function(metadata) {
-        return window.Word.run(function(context) {
+    saveDocumentMetadata: async function (metadata) {
+        await window.Word.run(async context => {
             context.document.properties.title = metadata.title;
             context.document.properties.subject = metadata.subject;
 
-            return context.sync();
+            await context.sync();
         });
     }
 }
