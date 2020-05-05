@@ -1,6 +1,8 @@
-﻿window.wordWrapper = {
-    getDocumentMetadata: async function () {
-        const metadata = await window.Word.run(async context => {
+﻿var wordWrapper = wordWrapper || {};
+
+wordWrapper.getDocumentMetadata = async function () {
+    try {
+        const metadata = await Word.run(async context => {
             let properties = context.document.properties;
             context.load(properties);
 
@@ -13,13 +15,20 @@
         });
 
         return metadata;
-    },
-    saveDocumentMetadata: async function (metadata) {
-        await window.Word.run(async context => {
+    } catch (error) {
+        throw Error(JSON.stringify(error));
+    }
+};
+
+wordWrapper.saveDocumentMetadata = async function (metadata) {
+    try {
+        await Word.run(async context => {
             context.document.properties.title = metadata.title;
             context.document.properties.subject = metadata.subject;
 
             await context.sync();
         });
+    } catch (error) {
+        throw Error(JSON.stringify(error));
     }
-}
+};
