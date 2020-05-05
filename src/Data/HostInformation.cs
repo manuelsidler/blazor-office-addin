@@ -4,5 +4,6 @@
     {
         public string Host { get; set; }
         public string Platform { get; set; }
+        public bool IsInitialized => Host != null && Platform != null;
     }
 }

@@ -3,6 +3,12 @@
 
 <h1>Hello, Office!</h1>
 
+@if (!_hostInformation.IsInitialized)
+{
+    <p>Not in Office.</p>
+    return;
+}
+
 <table class="table">
     <tbody>
         <tr>
@@ -16,15 +22,7 @@
     </tbody>
 </table>
 
-<button type="button" class="btn btn-primary" @onclick="InitializeOffice">
-    Initialize Office
-</button>
-
-<button type="button" class="btn btn-secondary" @onclick="LoadDocumentMetadata">
-    Load Metadata
-</button>
-
-<hr/>
+<hr />
 
 <EditForm Model="@_documentMetadata" OnValidSubmit="SaveDocumentMetadata">
     <DataAnnotationsValidator />
@@ -52,18 +50,21 @@
     private HostInformation _hostInformation = new HostInformation();
     private DocumentMetadata _documentMetadata = new DocumentMetadata();
 
-    private async Task InitializeOffice()
-    {
-        _hostInformation = await JSRuntime.InvokeAsync<HostInformation>("Office.onReady");
-    }
-
-    private async Task LoadDocumentMetadata()
-    {
-        _documentMetadata = await JSRuntime.InvokeAsync<DocumentMetadata>("wordWrapper.getDocumentMetadata");
-    }
-
     private async Task SaveDocumentMetadata()
     {
         await JSRuntime.InvokeVoidAsync("wordWrapper.saveDocumentMetadata", _documentMetadata);
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _hostInformation = await JSRuntime.InvokeAsync<HostInformation>("Office.onReady");
+            if (_hostInformation.IsInitialized)
+            {
+                _documentMetadata = await JSRuntime.InvokeAsync<DocumentMetadata>("wordWrapper.getDocumentMetadata");
+                StateHasChanged();
+            }
+        }
     }
 }
