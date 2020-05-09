@@ -43,19 +43,46 @@
         </label>
     </div>
 
-    <button type="submit" class="btn btn-primary">Submit</button>
+    <button type="submit" class="btn btn-primary">Save Metadata</button>
+</EditForm>
+
+<hr/>
+
+<EditForm Model="@_documentSettings" OnValidSubmit="SaveDocumentSettings">
+    <div class="form-check">
+        <label>
+            <InputCheckbox id="autoShowAddIn" class="form-check-input" @bind-Value="@_documentSettings.AutoShowAddIn"/>
+            Auto show add in
+        </label>
+    </div>
+    
+    <button type="submit" class="btn btn-primary">Save Settings</button>
 </EditForm>
 
 @code
 {
     private HostInformation _hostInformation = new HostInformation();
     private DocumentMetadata _documentMetadata = new DocumentMetadata();
+    private DocumentSettings _documentSettings = new DocumentSettings();
 
     private async Task SaveDocumentMetadata()
     {
         try
         {
             await JSRuntime.InvokeVoidAsync("wordWrapper.saveDocumentMetadata", _documentMetadata);
+        }
+        catch (JSException ex)
+        {
+            HandleOfficeError(ex);
+        }
+    }
+
+    private async Task SaveDocumentSettings()
+    {
+        try
+        {
+            await JSRuntime.InvokeVoidAsync("Office.context.document.settings.set", "Office.AutoShowTaskpaneWithDocument", _documentSettings.AutoShowAddIn);
+            await JSRuntime.InvokeVoidAsync("Office.context.document.settings.saveAsync");
         }
         catch (JSException ex)
         {
@@ -73,6 +100,10 @@
                 if (_hostInformation.IsInitialized)
                 {
                     _documentMetadata = await JSRuntime.InvokeAsync<DocumentMetadata>("wordWrapper.getDocumentMetadata");
+
+                    var autoShowAddIn = await JSRuntime.InvokeAsync<bool?>("window.Office.context.document.settings.get", "Office.AutoShowTaskpaneWithDocument");
+                    _documentSettings.AutoShowAddIn = autoShowAddIn.HasValue && autoShowAddIn.Value;
+                    
                     StateHasChanged();
                 }
             }
