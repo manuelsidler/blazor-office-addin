@@ -1,5 +1,6 @@
 ﻿@page "/"
 @using System.Text.Json
+@using System.Diagnostics
 @inject IJSRuntime JSRuntime;
 
 <h1>Hello, Office!</h1>
@@ -92,6 +93,8 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
+        Debug.Print("OnAfterRenderAsync. First render: " + firstRender);
+
         if (firstRender)
         {
             try
@@ -103,7 +106,7 @@
 
                     var autoShowAddIn = await JSRuntime.InvokeAsync<bool?>("window.Office.context.document.settings.get", "Office.AutoShowTaskpaneWithDocument");
                     _documentSettings.AutoShowAddIn = autoShowAddIn.HasValue && autoShowAddIn.Value;
-                    
+
                     StateHasChanged();
                 }
             }
@@ -116,14 +119,20 @@
 
     private void HandleOfficeError(JSException ex)
     {
-        var officeError = JsonSerializer.Deserialize<OfficeError>(ex.Message);
+        OfficeError officeError = null;
+        try
+        {
+            officeError = JsonSerializer.Deserialize<OfficeError>(ex.Message);
+        }
+        catch
+        {
+            // not an office error object
+            Debug.Print(ex.Message);
+        }
+
         if (officeError != null)
         {
-            // log office error information
-        }
-        else
-        {
-            // log message with stack trace
+            Debug.Print(officeError.Name);
         }
     }
 }
